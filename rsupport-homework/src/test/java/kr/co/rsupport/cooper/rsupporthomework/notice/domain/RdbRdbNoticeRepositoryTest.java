@@ -15,13 +15,13 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 @DataJpaTest
-class NoticeRepositoryTest {
+class RdbRdbNoticeRepositoryTest {
 
     @Autowired
     private TestEntityManager testEntityManager;
 
     @Autowired
-    private NoticeRepository noticeRepository;
+    private RdbNoticeRepository rdbNoticeRepository;
 
     @Test
     @DisplayName("공지 단일 조회 테스트 - 정상")
@@ -33,7 +33,7 @@ class NoticeRepositoryTest {
         LocalDateTime startTime = LocalDateTime.of(2021, 10, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2021, 11, 20, 0, 0);
 
-        Notice notice = Notice.builder()
+        RdbNotice rdbNotice = RdbNotice.builder()
                 .title(title)
                 .content(content)
                 .author(author)
@@ -42,11 +42,11 @@ class NoticeRepositoryTest {
                 .build();
 
         //when
-        testEntityManager.persist(notice);
+        testEntityManager.persist(rdbNotice);
 
         //then
-        Notice findNotice = noticeRepository.findById(notice.getId()).get();
-        assertThat(findNotice).isEqualTo(notice);
+        RdbNotice findRdbNotice = rdbNoticeRepository.findById(rdbNotice.getId()).get();
+        assertThat(findRdbNotice).isEqualTo(rdbNotice);
     }
 
     @Test
@@ -59,7 +59,7 @@ class NoticeRepositoryTest {
         LocalDateTime startTime = LocalDateTime.of(2021, 10, 20, 0, 0);
         LocalDateTime endTime = LocalDateTime.of(2021, 11, 20, 0, 0);
 
-        Notice notice = Notice.builder()
+        RdbNotice rdbNotice = RdbNotice.builder()
                 .title(title)
                 .content(content)
                 .author(author)
@@ -68,11 +68,11 @@ class NoticeRepositoryTest {
                 .build();
 
         //when
-        testEntityManager.persist(notice);
+        testEntityManager.persist(rdbNotice);
 
         //then
         Long wrongId = 11L;
-        assertThatThrownBy(() -> noticeRepository.findById(wrongId).get())
+        assertThatThrownBy(() -> rdbNoticeRepository.findById(wrongId).get())
                 .isInstanceOf(NoSuchElementException.class);
     }
 
@@ -80,7 +80,7 @@ class NoticeRepositoryTest {
     @DisplayName("공지 조회 목록 테스트 - 정상")
     void 조회_목록_정상() {
         //given
-        Notice notice1 = Notice.builder()
+        RdbNotice rdbNotice1 = RdbNotice.builder()
                 .title("제목1")
                 .content("내용1")
                 .author("작가1")
@@ -88,7 +88,7 @@ class NoticeRepositoryTest {
                 .endTime(LocalDateTime.of(2021, 11, 20, 0, 0))
                 .build();
 
-        Notice notice2 = Notice.builder()
+        RdbNotice rdbNotice2 = RdbNotice.builder()
                 .title("제목2")
                 .content("내용2")
                 .author("작가2")
@@ -96,7 +96,7 @@ class NoticeRepositoryTest {
                 .endTime(LocalDateTime.of(2021, 11, 20, 0, 0))
                 .build();
 
-        Notice notice3 = Notice.builder()
+        RdbNotice rdbNotice3 = RdbNotice.builder()
                 .title("제목3")
                 .content("내용3")
                 .author("작가3")
@@ -104,22 +104,22 @@ class NoticeRepositoryTest {
                 .endTime(LocalDateTime.of(2021, 11, 20, 0, 0))
                 .build();
 
-        testEntityManager.persist(notice1);
-        testEntityManager.persist(notice2);
-        testEntityManager.persist(notice3);
+        testEntityManager.persist(rdbNotice1);
+        testEntityManager.persist(rdbNotice2);
+        testEntityManager.persist(rdbNotice3);
 
         //when
-        List<Notice> noticeList = noticeRepository.findAll();
+        List<RdbNotice> rdbNoticeList = rdbNoticeRepository.findAll();
 
         //then
-        assertThat(noticeList.size()).isEqualTo(3);
+        assertThat(rdbNoticeList.size()).isEqualTo(3);
     }
 
     @Test
     @DisplayName("공지 수정 테스트 - 정상")
     void 조회_수정_정상() {
         //given
-        Notice notice = Notice.builder()
+        RdbNotice rdbNotice = RdbNotice.builder()
                 .title("제목")
                 .content("내용")
                 .author("작가")
@@ -127,26 +127,26 @@ class NoticeRepositoryTest {
                 .endTime(LocalDateTime.of(2021, 11, 20, 0, 0))
                 .build();
 
-        testEntityManager.persist(notice);
+        testEntityManager.persist(rdbNotice);
 
-        notice.updateTitle("수정된 제목");
-        notice.updateContent("수정된 내용");
-        notice.updateAuthor("수정된 작가");
-        notice.updateStartTime(LocalDateTime.of(2021, 10, 22, 0, 0));
-        notice.updateEndTime(LocalDateTime.of(2021, 10, 24, 0, 0));
+        rdbNotice.updateTitle("수정된 제목");
+        rdbNotice.updateContent("수정된 내용");
+        rdbNotice.updateAuthor("수정된 작가");
+        rdbNotice.updateStartTime(LocalDateTime.of(2021, 10, 22, 0, 0));
+        rdbNotice.updateEndTime(LocalDateTime.of(2021, 10, 24, 0, 0));
 
         //when
-        noticeRepository.save(notice);
+        rdbNoticeRepository.save(rdbNotice);
 
         //then
-        assertThat(noticeRepository.findById(notice.getId()).get()).isEqualTo(notice);
+        assertThat(rdbNoticeRepository.findById(rdbNotice.getId()).get()).isEqualTo(rdbNotice);
     }
 
     @Test
     @DisplayName("공지 삭제 테스트 - 정상")
     void 조회_삭제_정상() {
         //given
-        Notice notice = Notice.builder()
+        RdbNotice rdbNotice = RdbNotice.builder()
                 .title("제목")
                 .content("내용")
                 .author("작가")
@@ -154,13 +154,13 @@ class NoticeRepositoryTest {
                 .endTime(LocalDateTime.of(2021, 11, 20, 0, 0))
                 .build();
 
-        testEntityManager.persist(notice);
+        testEntityManager.persist(rdbNotice);
 
         //when
-        noticeRepository.delete(notice);
-        List<Notice> noticeList = noticeRepository.findAll();
+        rdbNoticeRepository.delete(rdbNotice);
+        List<RdbNotice> rdbNoticeList = rdbNoticeRepository.findAll();
 
         //then
-        assertThat(noticeList.size()).isEqualTo(0);
+        assertThat(rdbNoticeList.size()).isEqualTo(0);
     }
 }

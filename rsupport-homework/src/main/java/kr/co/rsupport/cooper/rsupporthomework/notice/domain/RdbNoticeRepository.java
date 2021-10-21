@@ -2,5 +2,5 @@ package kr.co.rsupport.cooper.rsupporthomework.notice.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface NoticeRepository extends JpaRepository<Notice, Long> {
+public interface RdbNoticeRepository extends JpaRepository<RdbNotice, Long> {
 }

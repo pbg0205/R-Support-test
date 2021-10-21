@@ -18,7 +18,7 @@ import java.util.Objects;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Notice extends BaseEntity {
+public class RdbNotice extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +43,7 @@ public class Notice extends BaseEntity {
     private LocalDateTime endTime;
 
     @Builder
-    public Notice(String title, String content, String author, LocalDateTime startTime, LocalDateTime endTime) {
+    public RdbNotice(String title, String content, String author, LocalDateTime startTime, LocalDateTime endTime) {
         validate(title, content, author, startTime, endTime);
         this.title = title;
         this.content = content;
