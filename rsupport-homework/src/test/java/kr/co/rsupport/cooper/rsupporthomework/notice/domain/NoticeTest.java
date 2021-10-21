@@ -4,7 +4,6 @@ import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidAuthorExce
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidContentException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidNoticeTimeException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidTitleException;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
