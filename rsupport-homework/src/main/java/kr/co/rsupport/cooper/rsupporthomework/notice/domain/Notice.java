@@ -87,5 +87,30 @@ public class Notice extends BaseEntity {
             throw new InvalidNoticeTimeException("공지 시작일이 공지 종료일보다 이후입니다.");
         }
     }
+
+    public void updateTitle(String title) {
+        validateTitle(title);
+        this.title = title;
+    }
+
+    public void updateContent(String content) {
+        validateContent(content);
+        this.content = content;
+    }
+
+    public void updateAuthor(String author) {
+        validateAuthor(author);
+        this.author = author;
+    }
+
+    public void updateStartTime(LocalDateTime startTime) {
+        validateNoticeTime(startTime, endTime);
+        this.startTime = startTime;
+    }
+
+    public void updateEndTime(LocalDateTime endTime) {
+        validateNoticeTime(startTime, endTime);
+        this.endTime = endTime;
+    }
 }
 
