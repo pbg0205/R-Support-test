@@ -6,6 +6,7 @@ import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidNoticeTime
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidTitleException;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.redis.core.RedisHash;
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Getter
+@ToString
 @RedisHash(("Notice"))
 public class RedisNotice {
 
@@ -28,18 +30,18 @@ public class RedisNotice {
 
     private String author;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime startTime;
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime endTime;
 
     @CreatedDate
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    private LocalDateTime createdAt;
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @LastModifiedDate
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime lastModifiedAt;
 
     @Builder
@@ -92,6 +94,14 @@ public class RedisNotice {
         if (endTime.isBefore(startTime)) {
             throw new InvalidNoticeTimeException("공지 시작일이 공지 종료일보다 이후입니다.");
         }
+    }
+
+    public void update(RdbNotice rdbNotice) {
+        updateTitle(rdbNotice.getTitle());
+        updateContent(rdbNotice.getContent());
+        updateAuthor(rdbNotice.getAuthor());
+        updateStartTime(rdbNotice.getStartTime());
+        updateEndTime(rdbNotice.getEndTime());
     }
 
     public void updateTitle(String title) {

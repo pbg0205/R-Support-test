@@ -1,6 +1,7 @@
 package kr.co.rsupport.cooper.rsupporthomework.notice.domain;
 
 import kr.co.rsupport.cooper.rsupporthomework.common.BaseEntity;
+import kr.co.rsupport.cooper.rsupporthomework.notice.dto.NoticeRequest;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidAuthorException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidContentException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidNoticeTimeException;
@@ -88,6 +89,14 @@ public class RdbNotice extends BaseEntity {
         }
     }
 
+    public void update(NoticeRequest noticeRequest) {
+        updateTitle(noticeRequest.getTitle());
+        updateContent(noticeRequest.getContent());
+        updateAuthor(noticeRequest.getAuthor());
+        updateStartTime(noticeRequest.getStartTime());
+        updateEndTime(noticeRequest.getEndTime());
+    }
+
     public void updateTitle(String title) {
         validateTitle(title);
         this.title = title;
@@ -111,6 +120,17 @@ public class RdbNotice extends BaseEntity {
     public void updateEndTime(LocalDateTime endTime) {
         validateNoticeTime(startTime, endTime);
         this.endTime = endTime;
+    }
+
+    public RedisNotice toRedisEntity() {
+        return RedisNotice.builder()
+                .id(id)
+                .title(title)
+                .content(content)
+                .author(author)
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
     }
 }
 
