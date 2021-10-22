@@ -1,0 +1,32 @@
+### 1. 생성 요청
+POST localhost:8080/api/v1/notice
+content-type:application/json
+
+{
+  "title" : "제목1",
+  "content" : "내용1",
+  "author" : "작성자",
+  "startTime" : "2021-10-20T12:00",
+  "endTime" : "2021-11-20T12:00"
+}
+
+### 2. 조회 요청
+GET localhost:8080/api/v1/notice/1
+content-type:application/json
+
+### 3. 수정 요청
+PUT localhost:8080/api/v1/notice/1
+content-type:application/json
+
+{
+  "title" : "수정된 제목1",
+  "content" : "수정된 내용1",
+  "author" : "수정된 작성자",
+  "startTime" : "2021-10-20T12:00",
+  "endTime" : "2021-11-20T12:00"
+}
+
+### 4. 삭제 요청
+DELETE localhost:8080/api/v1/notice/1
+content-type:application/json
+
