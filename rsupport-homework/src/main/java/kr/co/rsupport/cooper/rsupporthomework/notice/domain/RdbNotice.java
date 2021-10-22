@@ -36,11 +36,11 @@ public class RdbNotice extends BaseEntity {
     private String author;
 
     @Column(name = "notice_start_time", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime startTime;
 
     @Column(name = "notice_end_time", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime endTime;
 
     @Builder
