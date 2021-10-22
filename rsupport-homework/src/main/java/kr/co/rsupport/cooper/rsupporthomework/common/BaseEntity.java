@@ -1,5 +1,6 @@
 package kr.co.rsupport.cooper.rsupporthomework.common;
 
+import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -10,17 +11,16 @@ import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
+@Getter
 @EntityListeners(AuditingEntityListener.class)
 @MappedSuperclass
 public abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "last_modified_at", updatable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @Column(name = "last_modified_at")
     private LocalDateTime lastModifiedAt;
 }
