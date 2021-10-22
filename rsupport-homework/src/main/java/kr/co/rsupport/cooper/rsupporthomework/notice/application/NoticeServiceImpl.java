@@ -9,6 +9,7 @@ import kr.co.rsupport.cooper.rsupporthomework.notice.dto.NoticeResponse;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.NotFoundNoticeException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -35,9 +36,26 @@ public class NoticeServiceImpl implements NoticeService {
             redisNoticeOptional = redisNoticeRepository.findById(id);
         }
 
-        redisNotice = redisNoticeOptional.get();
+        redisNotice = addNoticeViewCountAtRedis(redisNoticeOptional);
+
+        if (redisNotice.isSynViewCount()) {
+            synchronizeViewCountBetweenRedisAndRdb(id, redisNotice);
+        }
 
         return NoticeResponse.fromEntity(redisNotice);
+    }
+
+    private void synchronizeViewCountBetweenRedisAndRdb(Long id, RedisNotice redisNotice) {
+        RdbNotice rdbNotice = rdbNoticeRepository.findById(id).orElseThrow(NotFoundNoticeException::new);
+        rdbNotice.updateViewCount(redisNotice.getViewCount());
+        rdbNoticeRepository.save(rdbNotice);
+    }
+
+    private RedisNotice addNoticeViewCountAtRedis(Optional<RedisNotice> redisNoticeOptional) {
+        RedisNotice redisNotice = redisNoticeOptional.get();
+        redisNotice.addViewCount();
+        redisNoticeRepository.save(redisNotice);
+        return redisNotice;
     }
 
     public NoticeResponse updateNotice(Long id, NoticeRequest noticeRequest) {
@@ -54,6 +72,7 @@ public class NoticeServiceImpl implements NoticeService {
         return NoticeResponse.fromEntity(redisNotice);
     }
 
+    @Transactional
     public void deleteNotice(Long id) {
         RedisNotice redisNotice = redisNoticeRepository.findById(id)
                 .orElseThrow(NotFoundNoticeException::new);

@@ -35,12 +35,15 @@ public class RdbNotice extends BaseEntity {
     @Column(name = "notice_author", nullable = false)
     private String author;
 
+    @Column(name = "notice_view_count")
+    private int viewCount = 0;
+
     @Column(name = "notice_start_time", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime startTime;
 
     @Column(name = "notice_end_time", nullable = false)
-    @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endTime;
 
     @Builder
@@ -120,6 +123,10 @@ public class RdbNotice extends BaseEntity {
     public void updateEndTime(LocalDateTime endTime) {
         validateNoticeTime(startTime, endTime);
         this.endTime = endTime;
+    }
+
+    public void updateViewCount(int viewCount) {
+        this.viewCount = viewCount;
     }
 
     public RedisNotice toRedisEntity() {

@@ -16,19 +16,9 @@ public class NoticeResponse {
     private String title;
     private String content;
     private String author;
+    private int viewCount;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-
-    public static NoticeResponse fromEntity(RdbNotice notice) {
-        return new NoticeResponse(
-                notice.getId(),
-                notice.getTitle(),
-                notice.getContent(),
-                notice.getAuthor(),
-                notice.getStartTime(),
-                notice.getEndTime()
-        );
-    }
 
     public static NoticeResponse fromEntity(RedisNotice notice) {
         return new NoticeResponse(
@@ -36,6 +26,7 @@ public class NoticeResponse {
                 notice.getTitle(),
                 notice.getContent(),
                 notice.getAuthor(),
+                notice.getViewCount(),
                 notice.getStartTime(),
                 notice.getEndTime()
         );

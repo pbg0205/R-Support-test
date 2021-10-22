@@ -30,6 +30,8 @@ public class RedisNotice {
 
     private String author;
 
+    private int viewCount = 0;
+
     @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime startTime;
 
@@ -127,5 +129,13 @@ public class RedisNotice {
     public void updateEndTime(LocalDateTime endTime) {
         validateNoticeTime(startTime, endTime);
         this.endTime = endTime;
+    }
+
+    public void addViewCount() {
+        this.viewCount++;
+    }
+
+    public boolean isSynViewCount() {
+        return viewCount % 10 == 0;
     }
 }
