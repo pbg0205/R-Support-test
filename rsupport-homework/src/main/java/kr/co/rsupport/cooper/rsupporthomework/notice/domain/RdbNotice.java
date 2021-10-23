@@ -7,6 +7,7 @@ import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidContentExc
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidNoticeTimeException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidTitleException;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -51,6 +52,7 @@ public class RdbNotice extends BaseEntity {
     @OneToMany(mappedBy = "rdbNotice", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<RdbAttachment> rdbAttachments = new ArrayList<>();
 
+    @Builder
     public RdbNotice(String title,
                      String content,
                      String author,
