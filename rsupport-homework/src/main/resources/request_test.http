@@ -1,5 +1,5 @@
 ### 1. 생성 요청
-POST localhost:8080/api/v1/notice
+POST localhost:8080/api/v1/notices
 content-type:application/json
 
 {
@@ -7,15 +7,23 @@ content-type:application/json
   "content" : "내용1",
   "author" : "작성자",
   "startTime" : "2021-10-20T12:00",
-  "endTime" : "2021-11-20T12:00"
+  "endTime" : "2021-11-20T12:00",
+  "attachments" : [
+    {
+      "name" : "첨부파일1"
+    },
+    {
+      "name" : "첨부파일2"
+    }
+  ]
 }
 
 ### 2. 조회 요청
-GET localhost:8080/api/v1/notice/1
+GET localhost:8080/api/v1/notices/1
 content-type:application/json
 
 ### 3. 수정 요청
-PUT localhost:8080/api/v1/notice/1
+PUT localhost:8080/api/v1/notices/1
 content-type:application/json
 
 {
@@ -26,7 +34,16 @@ content-type:application/json
   "endTime" : "2021-11-20T12:00"
 }
 
-### 4. 삭제 요청
-DELETE localhost:8080/api/v1/notice/1
+### 4. 첨부파일 수정
+PUT localhost:8080/api/v1/notices/1/attachments/1
+content-type:application/json
+
+{
+  "id" : 1,
+  "name" : "수정된 첨부 파일"
+}
+
+### 5. 삭제 요청
+DELETE localhost:8080/api/v1/notices/1
 content-type:application/json
 
