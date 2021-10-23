@@ -1,29 +1,50 @@
 package kr.co.rsupport.cooper.rsupporthomework.notice.application;
 
-import kr.co.rsupport.cooper.rsupporthomework.notice.domain.RdbNotice;
-import kr.co.rsupport.cooper.rsupporthomework.notice.domain.RdbNoticeRepository;
-import kr.co.rsupport.cooper.rsupporthomework.notice.domain.RedisNotice;
-import kr.co.rsupport.cooper.rsupporthomework.notice.domain.RedisNoticeRepository;
+import kr.co.rsupport.cooper.rsupporthomework.notice.domain.*;
+import kr.co.rsupport.cooper.rsupporthomework.notice.dto.AttachmentRequest;
+import kr.co.rsupport.cooper.rsupporthomework.notice.dto.AttachmentResponse;
 import kr.co.rsupport.cooper.rsupporthomework.notice.dto.NoticeRequest;
 import kr.co.rsupport.cooper.rsupporthomework.notice.dto.NoticeResponse;
+import kr.co.rsupport.cooper.rsupporthomework.notice.exception.NotFoundAttachmentException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.NotFoundNoticeException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class NoticeServiceImpl implements NoticeService {
 
     private final RdbNoticeRepository rdbNoticeRepository;
     private final RedisNoticeRepository redisNoticeRepository;
 
+    @Transactional
     public NoticeResponse createNotice(NoticeRequest noticeRequest) {
-        RdbNotice savedRdbNotice = rdbNoticeRepository.save(noticeRequest.toRdbEntity());
-        RedisNotice savedRedisNotice = redisNoticeRepository.save(savedRdbNotice.toRedisEntity());
+        RdbNotice rdbNotice = noticeRequest.toRdbEntity();
+        addRdbAttachments(noticeRequest, rdbNotice);
+        RdbNotice savedRdbNotice = rdbNoticeRepository.save(rdbNotice);
+
+        RedisNotice redisNotice = savedRdbNotice.toRedisEntity();
+        addRedisAttachments(rdbNotice, redisNotice);
+        RedisNotice savedRedisNotice = redisNoticeRepository.save(redisNotice);
+
         return NoticeResponse.fromEntity(savedRedisNotice);
+    }
+
+    private void addRdbAttachments(NoticeRequest noticeRequest, RdbNotice rdbNotice) {
+        noticeRequest.getAttachments().stream()
+                .map(AttachmentRequest::toEntity)
+                .forEach(rdbNotice::addAttachment);
+    }
+
+    private void addRedisAttachments(RdbNotice rdbNotice, RedisNotice redisNotice) {
+        rdbNotice.getRdbAttachments().stream()
+                .map(RdbAttachment::toRedisEntity)
+                .forEach(redisNotice::addAttachments);
     }
 
     public NoticeResponse getNotice(Long id) {
@@ -81,5 +102,28 @@ public class NoticeServiceImpl implements NoticeService {
         RdbNotice rdbNotice = rdbNoticeRepository.findById(id)
                 .orElseThrow(NotFoundNoticeException::new);
         rdbNoticeRepository.delete(rdbNotice);
+    }
+
+    public AttachmentResponse updateAttachment(Long noticeId, Long attachmentId, AttachmentRequest attachmentRequest) {
+        RdbNotice rdbNotice = rdbNoticeRepository.findById(noticeId).orElseThrow(NotFoundNoticeException::new);
+        RdbAttachment rdbAttachment = rdbNotice.getRdbAttachments().stream()
+                .filter(attachment -> attachment.getId().equals(attachmentId))
+                .findFirst()
+                .orElseThrow(NotFoundAttachmentException::new);
+        rdbAttachment.update(attachmentRequest);
+        rdbNoticeRepository.save(rdbNotice);
+
+        RedisNotice redisNotice = redisNoticeRepository.findById(noticeId)
+                .orElseThrow(NotFoundNoticeException::new);
+        RedisAttachment redisAttachment = redisNotice.getAttachments().stream()
+                .filter(attachment -> attachment.getId().equals(attachmentId))
+                .findFirst()
+                .orElseThrow(NotFoundAttachmentException::new);
+        redisAttachment.update(rdbAttachment);
+        redisNoticeRepository.save(redisNotice);
+
+        log.debug("redisAttachment : {}", redisAttachment);
+
+        return AttachmentResponse.from(redisAttachment);
     }
 }
