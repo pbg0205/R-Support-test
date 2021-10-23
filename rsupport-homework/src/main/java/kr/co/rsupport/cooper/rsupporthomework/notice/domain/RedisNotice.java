@@ -14,6 +14,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -45,6 +47,8 @@ public class RedisNotice {
     @LastModifiedDate
     @DateTimeFormat(pattern = "yyyy-MM-dd-HH:mm")
     private LocalDateTime lastModifiedAt;
+
+    private List<RedisAttachment> attachments = new ArrayList<>();
 
     @Builder
     public RedisNotice(Long id,
@@ -129,6 +133,10 @@ public class RedisNotice {
     public void updateEndTime(LocalDateTime endTime) {
         validateNoticeTime(startTime, endTime);
         this.endTime = endTime;
+    }
+
+    public void addAttachments(RedisAttachment redisAttachment) {
+        attachments.add(redisAttachment);
     }
 
     public void addViewCount() {

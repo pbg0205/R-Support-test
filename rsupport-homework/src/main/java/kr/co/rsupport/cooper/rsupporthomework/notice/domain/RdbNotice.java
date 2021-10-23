@@ -7,14 +7,16 @@ import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidContentExc
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidNoticeTimeException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.InvalidTitleException;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Entity
 @Getter
@@ -46,8 +48,14 @@ public class RdbNotice extends BaseEntity {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endTime;
 
-    @Builder
-    public RdbNotice(String title, String content, String author, LocalDateTime startTime, LocalDateTime endTime) {
+    @OneToMany(mappedBy = "rdbNotice", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<RdbAttachment> rdbAttachments = new ArrayList<>();
+
+    public RdbNotice(String title,
+                     String content,
+                     String author,
+                     LocalDateTime startTime,
+                     LocalDateTime endTime) {
         validate(title, content, author, startTime, endTime);
         this.title = title;
         this.content = content;
@@ -138,6 +146,16 @@ public class RdbNotice extends BaseEntity {
                 .startTime(startTime)
                 .endTime(endTime)
                 .build();
+    }
+
+    public List<RedisAttachment> toAttachmentsRedisEntity() {
+        return rdbAttachments.stream().map(RdbAttachment::toRedisEntity)
+                .collect(Collectors.toList());
+    }
+
+    public void addAttachment(RdbAttachment rdbAttachment) {
+        rdbAttachments.add(rdbAttachment);
+        rdbAttachment.setRdbNotice(this);
     }
 }
 
