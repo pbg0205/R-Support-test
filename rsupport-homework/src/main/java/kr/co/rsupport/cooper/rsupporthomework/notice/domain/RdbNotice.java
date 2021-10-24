@@ -49,7 +49,7 @@ public class RdbNotice extends BaseEntity {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endTime;
 
-    @OneToMany(mappedBy = "rdbNotice", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "rdbNotice", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RdbAttachment> rdbAttachments = new ArrayList<>();
 
     @Builder
