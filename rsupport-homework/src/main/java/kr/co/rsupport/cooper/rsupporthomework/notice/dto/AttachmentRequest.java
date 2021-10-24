@@ -2,13 +2,11 @@ package kr.co.rsupport.cooper.rsupporthomework.notice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import kr.co.rsupport.cooper.rsupporthomework.notice.domain.RdbAttachment;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 @Getter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AttachmentRequest {
 

@@ -22,6 +22,7 @@ public class NoticeController {
 
     @PostMapping
     public ResponseEntity<ApiResult<NoticeResponse>> createNotice(@RequestBody NoticeRequest noticeRequest) {
+        log.debug("RequestBody : {}", noticeRequest);
         NoticeResponse noticeResponse = noticeServiceImpl.createNotice(noticeRequest);
         ApiResult<NoticeResponse> apiResult = ApiResult.success(noticeResponse, HttpStatus.CREATED);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -30,6 +31,7 @@ public class NoticeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResult<NoticeResponse>> getNotice(@PathVariable Long id) {
+        log.debug("id : {}", id);
         NoticeResponse noticeResponse = noticeServiceImpl.getNotice(id);
         ApiResult<NoticeResponse> apiResult = ApiResult.success(noticeResponse, HttpStatus.OK);
         return ResponseEntity.status(HttpStatus.OK)
@@ -39,6 +41,7 @@ public class NoticeController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResult<NoticeResponse>> updateNotice(@PathVariable Long id,
                                                                   @RequestBody NoticeRequest noticeRequest) {
+        log.debug("id : {} / RequestBody : {}", id, noticeRequest);
         NoticeResponse noticeResponse = noticeServiceImpl.updateNotice(id, noticeRequest);
         ApiResult<NoticeResponse> apiResult = ApiResult.success(noticeResponse, HttpStatus.OK);
         return ResponseEntity.status(HttpStatus.OK)
@@ -47,6 +50,7 @@ public class NoticeController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteNotice(@PathVariable Long id) {
+        log.debug("id : {}", id);
         noticeServiceImpl.deleteNotice(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .build();
@@ -56,7 +60,6 @@ public class NoticeController {
     public ResponseEntity<ApiResult<AttachmentResponse>> updateAttachment(@PathVariable Long noticeId,
                                                                           @PathVariable Long attachmentId,
                                                                           @RequestBody AttachmentRequest request) {
-        log.debug("{NoticeController.updateAttachment}");
         log.debug("noticeId : {}, attachId : {}, request : {}", noticeId, attachmentId, request);
         AttachmentResponse attachmentResponse = noticeServiceImpl.updateAttachment(noticeId, attachmentId, request);
         ApiResult<AttachmentResponse> apiResult = ApiResult.success(attachmentResponse, HttpStatus.OK);
