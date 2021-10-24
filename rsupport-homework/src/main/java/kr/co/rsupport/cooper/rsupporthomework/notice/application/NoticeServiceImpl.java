@@ -47,12 +47,13 @@ public class NoticeServiceImpl implements NoticeService {
                 .forEach(redisNotice::addAttachments);
     }
 
+    @Transactional
     public NoticeResponse getNotice(Long id) {
         RedisNotice redisNotice;
         Optional<RedisNotice> redisNoticeOptional = redisNoticeRepository.findById(id);
 
         if (!redisNoticeOptional.isPresent()) {
-            RdbNotice rdbNotice = rdbNoticeRepository.findById(id).orElseThrow(NotFoundNoticeException::new);
+            RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(id).orElseThrow(NotFoundNoticeException::new);
             redisNoticeRepository.save(rdbNotice.toRedisEntity());
             redisNoticeOptional = redisNoticeRepository.findById(id);
         }
@@ -67,7 +68,7 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     private void synchronizeViewCountBetweenRedisAndRdb(Long id, RedisNotice redisNotice) {
-        RdbNotice rdbNotice = rdbNoticeRepository.findById(id).orElseThrow(NotFoundNoticeException::new);
+        RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(id).orElseThrow(NotFoundNoticeException::new);
         rdbNotice.updateViewCount(redisNotice.getViewCount());
         rdbNoticeRepository.save(rdbNotice);
     }
@@ -79,8 +80,9 @@ public class NoticeServiceImpl implements NoticeService {
         return redisNotice;
     }
 
+    @Transactional
     public NoticeResponse updateNotice(Long id, NoticeRequest noticeRequest) {
-        RdbNotice rdbNotice = rdbNoticeRepository.findById(id)
+        RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(id)
                 .orElseThrow(NotFoundNoticeException::new);
         rdbNotice.update(noticeRequest);
         rdbNoticeRepository.save(rdbNotice);
@@ -104,8 +106,9 @@ public class NoticeServiceImpl implements NoticeService {
         rdbNoticeRepository.delete(rdbNotice);
     }
 
+    @Transactional
     public AttachmentResponse updateAttachment(Long noticeId, Long attachmentId, AttachmentRequest attachmentRequest) {
-        RdbNotice rdbNotice = rdbNoticeRepository.findById(noticeId).orElseThrow(NotFoundNoticeException::new);
+        RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(noticeId).orElseThrow(NotFoundNoticeException::new);
         RdbAttachment rdbAttachment = rdbNotice.getRdbAttachments().stream()
                 .filter(attachment -> attachment.getId().equals(attachmentId))
                 .findFirst()
