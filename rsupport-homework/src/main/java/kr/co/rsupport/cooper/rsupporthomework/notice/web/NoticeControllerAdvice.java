@@ -1,6 +1,7 @@
 package kr.co.rsupport.cooper.rsupporthomework.notice.web;
 
 import kr.co.rsupport.cooper.rsupporthomework.common.ApiResult;
+import kr.co.rsupport.cooper.rsupporthomework.notice.exception.NotFoundAttachmentException;
 import kr.co.rsupport.cooper.rsupporthomework.notice.exception.NotFoundNoticeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,13 @@ public class NoticeControllerAdvice {
 
     @ExceptionHandler(NotFoundNoticeException.class)
     public ResponseEntity<ApiResult<Void>> notFoundNoticeExceptionHandler(NotFoundNoticeException exception) {
+        ApiResult apiResult = ApiResult.fail(HttpStatus.BAD_REQUEST, exception.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(apiResult);
+    }
+
+    @ExceptionHandler(NotFoundAttachmentException.class)
+    public ResponseEntity<ApiResult<Void>> notFountAttachmentExceptionHandler(NotFoundAttachmentException exception) {
         ApiResult apiResult = ApiResult.fail(HttpStatus.BAD_REQUEST, exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(apiResult);
