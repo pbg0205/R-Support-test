@@ -17,7 +17,7 @@
 
   ### (2) 성능 개선을 위한 핵심 전략
 
-  <center><img src="https://user-images.githubusercontent.com/48561660/138586946-47c2f006-4dbe-4480-812e-e096c5ba707e.png" width="50%"></center>
+  <center><img src="https://user-images.githubusercontent.com/48561660/138600179-bc120514-eeb5-47af-99bf-db18ed3dce3b.png" width="50%"></center>
 
   1. `캐싱을 통한 조회 성능 개선` : 조회 성능을 개선하기 위해 **Redis**를 사용하였습니다. 도메인이 공지사항인 점을 미뤄보았을 때, **커맨드(Insert, Update, Delete)에 비해 쿼리(Query)가 많이 발생**합니다. 이 점을 두고 고려해보았을 때, 공지 내용을 캐싱해두고  RDB의 부하를 낮춰 성능을 개선하고자 하였습니다.
 
