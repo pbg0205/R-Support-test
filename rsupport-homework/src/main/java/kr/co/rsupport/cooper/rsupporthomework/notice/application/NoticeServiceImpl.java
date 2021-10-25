@@ -35,25 +35,13 @@ public class NoticeServiceImpl implements NoticeService {
         return NoticeResponse.fromEntity(savedRedisNotice);
     }
 
-    private void addRdbAttachments(NoticeRequest noticeRequest, RdbNotice rdbNotice) {
-        noticeRequest.getAttachments().stream()
-                .map(AttachmentRequest::toEntity)
-                .forEach(rdbNotice::addAttachment);
-    }
-
-    private void addRedisAttachments(RdbNotice rdbNotice, RedisNotice redisNotice) {
-        rdbNotice.getRdbAttachments().stream()
-                .map(RdbAttachment::toRedisEntity)
-                .forEach(redisNotice::addAttachments);
-    }
-
     @Transactional
     public NoticeResponse getNotice(Long id) {
         RedisNotice redisNotice;
         Optional<RedisNotice> redisNoticeOptional = redisNoticeRepository.findById(id);
 
         if (!redisNoticeOptional.isPresent()) {
-            RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(id).orElseThrow(NotFoundNoticeException::new);
+            RdbNotice rdbNotice = findByIdFromRdb(rdbNoticeRepository.findByIdUsingJoin(id));
             redisNoticeRepository.save(rdbNotice.toRedisEntity());
             redisNoticeOptional = redisNoticeRepository.findById(id);
         }
@@ -67,10 +55,78 @@ public class NoticeServiceImpl implements NoticeService {
         return NoticeResponse.fromEntity(redisNotice);
     }
 
-    private void synchronizeViewCountBetweenRedisAndRdb(Long id, RedisNotice redisNotice) {
-        RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(id).orElseThrow(NotFoundNoticeException::new);
-        rdbNotice.updateViewCount(redisNotice.getViewCount());
+    @Transactional
+    public NoticeResponse updateNotice(Long id, NoticeRequest noticeRequest) {
+        RdbNotice rdbNotice = findByIdFromRdb(rdbNoticeRepository.findByIdUsingJoin(id));
+        rdbNotice.update(noticeRequest);
         rdbNoticeRepository.save(rdbNotice);
+
+        RedisNotice redisNotice = findByIdFromRedis(id);
+        redisNotice.update(rdbNotice);
+        redisNoticeRepository.save(redisNotice);
+
+        return NoticeResponse.fromEntity(redisNotice);
+    }
+
+    @Transactional
+    public AttachmentResponse updateAttachment(Long noticeId, Long attachmentId, AttachmentRequest attachmentRequest) {
+        RdbNotice rdbNotice = findByIdFromRdb(rdbNoticeRepository.findByIdUsingJoin(noticeId));
+        RdbAttachment rdbAttachment = getRdbAttachment(attachmentId, rdbNotice);
+        rdbAttachment.update(attachmentRequest);
+        rdbNoticeRepository.save(rdbNotice);
+
+        RedisNotice redisNotice = findByIdFromRedis(noticeId);
+        RedisAttachment redisAttachment = getRedisAttachment(attachmentId, redisNotice);
+        redisAttachment.update(rdbAttachment);
+        redisNoticeRepository.save(redisNotice);
+
+        log.debug("redisAttachment : {}", redisAttachment);
+
+        return AttachmentResponse.from(redisAttachment);
+    }
+
+    @Transactional
+    public void deleteNotice(Long id) {
+        RedisNotice redisNotice = findByIdFromRedis(id);
+        redisNoticeRepository.delete(redisNotice);
+
+        RdbNotice rdbNotice = findByIdFromRdb(rdbNoticeRepository.findById(id));
+        rdbNoticeRepository.delete(rdbNotice);
+    }
+
+    private RdbNotice findByIdFromRdb(Optional<RdbNotice> byIdUsingJoin) {
+        return byIdUsingJoin.orElseThrow(NotFoundNoticeException::new);
+    }
+
+    private RedisNotice findByIdFromRedis(Long noticeId) {
+        return redisNoticeRepository.findById(noticeId)
+                .orElseThrow(NotFoundNoticeException::new);
+    }
+
+    private RedisAttachment getRedisAttachment(Long attachmentId, RedisNotice redisNotice) {
+        return redisNotice.getAttachments().stream()
+                .filter(attachment -> attachment.getId().equals(attachmentId))
+                .findFirst()
+                .orElseThrow(NotFoundAttachmentException::new);
+    }
+
+    private RdbAttachment getRdbAttachment(Long attachmentId, RdbNotice rdbNotice) {
+        return rdbNotice.getRdbAttachments().stream()
+                .filter(attachment -> attachment.getId().equals(attachmentId))
+                .findFirst()
+                .orElseThrow(NotFoundAttachmentException::new);
+    }
+
+    private void addRdbAttachments(NoticeRequest noticeRequest, RdbNotice rdbNotice) {
+        noticeRequest.getAttachments().stream()
+                .map(AttachmentRequest::toEntity)
+                .forEach(rdbNotice::addAttachment);
+    }
+
+    private void addRedisAttachments(RdbNotice rdbNotice, RedisNotice redisNotice) {
+        rdbNotice.getRdbAttachments().stream()
+                .map(RdbAttachment::toRedisEntity)
+                .forEach(redisNotice::addAttachments);
     }
 
     private RedisNotice addNoticeViewCountAtRedis(Optional<RedisNotice> redisNoticeOptional) {
@@ -80,53 +136,9 @@ public class NoticeServiceImpl implements NoticeService {
         return redisNotice;
     }
 
-    @Transactional
-    public NoticeResponse updateNotice(Long id, NoticeRequest noticeRequest) {
-        RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(id)
-                .orElseThrow(NotFoundNoticeException::new);
-        rdbNotice.update(noticeRequest);
+    private void synchronizeViewCountBetweenRedisAndRdb(Long id, RedisNotice redisNotice) {
+        RdbNotice rdbNotice = findByIdFromRdb(rdbNoticeRepository.findByIdUsingJoin(id));
+        rdbNotice.updateViewCount(redisNotice.getViewCount());
         rdbNoticeRepository.save(rdbNotice);
-
-        RedisNotice redisNotice = redisNoticeRepository.findById(id)
-                .orElseThrow(NotFoundNoticeException::new);
-        redisNotice.update(rdbNotice);
-        redisNoticeRepository.save(redisNotice);
-
-        return NoticeResponse.fromEntity(redisNotice);
-    }
-
-    @Transactional
-    public void deleteNotice(Long id) {
-        RedisNotice redisNotice = redisNoticeRepository.findById(id)
-                .orElseThrow(NotFoundNoticeException::new);
-        redisNoticeRepository.delete(redisNotice);
-
-        RdbNotice rdbNotice = rdbNoticeRepository.findById(id)
-                .orElseThrow(NotFoundNoticeException::new);
-        rdbNoticeRepository.delete(rdbNotice);
-    }
-
-    @Transactional
-    public AttachmentResponse updateAttachment(Long noticeId, Long attachmentId, AttachmentRequest attachmentRequest) {
-        RdbNotice rdbNotice = rdbNoticeRepository.findByIdUsingJoin(noticeId).orElseThrow(NotFoundNoticeException::new);
-        RdbAttachment rdbAttachment = rdbNotice.getRdbAttachments().stream()
-                .filter(attachment -> attachment.getId().equals(attachmentId))
-                .findFirst()
-                .orElseThrow(NotFoundAttachmentException::new);
-        rdbAttachment.update(attachmentRequest);
-        rdbNoticeRepository.save(rdbNotice);
-
-        RedisNotice redisNotice = redisNoticeRepository.findById(noticeId)
-                .orElseThrow(NotFoundNoticeException::new);
-        RedisAttachment redisAttachment = redisNotice.getAttachments().stream()
-                .filter(attachment -> attachment.getId().equals(attachmentId))
-                .findFirst()
-                .orElseThrow(NotFoundAttachmentException::new);
-        redisAttachment.update(rdbAttachment);
-        redisNoticeRepository.save(redisNotice);
-
-        log.debug("redisAttachment : {}", redisAttachment);
-
-        return AttachmentResponse.from(redisAttachment);
     }
 }
